@@ -1,5 +1,7 @@
 # Logical-Werkstatt
 
+**Live: https://maccu27.github.io/logical-generator/**
+
 Erzeugt Logikrätsel im 5x5-Format: fünf Kategorien mit je fünf Werten, dazu ein
 Kreuzraster zum Ausfüllen und eine Lösungstabelle. Die Seite läuft komplett im
 Browser, ohne Server und ohne Netzzugriff. Wer sie öffnet, klickt auf einen Knopf
@@ -23,6 +25,10 @@ diesen Hinweis erschließen lässt.
     check-forms.mjs   gibt alle Satzbausteine zur Sichtprüfung aus
 
 Bauen mit `python3 build.py`, prüfen mit `node test.mjs`.
+
+Jeder Push auf `main` baut die Seite neu und veröffentlicht sie über GitHub
+Pages. Der Workflow bricht ab, wenn das eingecheckte `dist/` nicht zum Build aus
+`src/` passt, damit die Live-Seite nie stillschweigend einen alten Stand zeigt.
 
 ## Wie ein Rätsel entsteht
 
