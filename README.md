@@ -12,6 +12,9 @@ sondern ein Constraint-Solver: Erst wird eine Lösung gewürfelt, dann werden wa
 Aussagen darüber gesammelt, und schließlich fällt alles weg, was sich auch ohne
 diesen Hinweis erschließen lässt.
 
+Wer neu in dieses Projekt einsteigt, liest zuerst `HANDOFF.md`: dort steht der
+Stand und warum die Dinge so entschieden wurden.
+
 ## Aufbau
 
     src/engine.js     Generator und die beiden Löser
@@ -20,9 +23,12 @@ diesen Hinweis erschließen lässt.
     src/ui.js         Oberfläche, Raster, Archiv
     src/style.css     Gestaltung
     src/template.html Gerüst
-    build.py          baut dist/index.html und dist/artifact.html
-    test.mjs          Gegenproben
+    HANDOFF.md        Stand und Entscheidungen, zuerst lesen
+    build.py          baut dist/index.html
+    test.mjs          Gegenproben: Eindeutigkeit, Lösbarkeit, Satzbau-Regel
     check-forms.mjs   gibt alle Satzbausteine zur Sichtprüfung aus
+    sample.mjs        gibt je Thema ein fertiges Rätsel mit allen Hinweisen aus
+    vorlage/          das handgebaute Ursprungs-Logical
 
 Bauen mit `python3 build.py`, prüfen mit `node test.mjs`.
 

@@ -390,21 +390,8 @@ function renderArchive() {
   });
 }
 
-async function exportArchive() {
+function exportArchive() {
   const json = JSON.stringify(loadArchive(), null, 2);
-  // Im Artifact-Viewer darf die Seite nicht selbst herunterladen, dort geht
-  // die Datei ueber die Download-Faehigkeit an den Betrachter.
-  const dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null;
-  if (dl) {
-    try {
-      await dl.save({ filename: 'logical-archiv.json', data: json });
-      setStatus('Archiv gesichert.', 'ok');
-    } catch (err) {
-      if (err && err.code === 'declined') setStatus('Sichern abgebrochen.', '');
-      else setStatus('Sichern nicht möglich: ' + ((err && err.message) || 'unbekannter Grund'), 'warn');
-    }
-    return;
-  }
   const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
   const a = document.createElement('a');
   a.href = url;
