@@ -1,0 +1,48 @@
+# Baut die Seite aus src/ und veroeffentlicht dist/ auf GitHub Pages.
+# Laeuft bei jedem Push auf main, damit die Live-Seite nie hinter dem Code
+# zurueckbleibt. Der Build ist reines Python ohne Abhaengigkeiten.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Laufende Deploys nicht abbrechen, aber auch nicht stapeln.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Seite bauen
+        run: python3 build.py
+      - name: Gegenprobe, dass der Build aktuell ist
+        run: |
+          if ! git diff --quiet -- dist; then
+            echo "dist/ im Repo weicht vom Build ab. Bitte 'python3 build.py' laufen lassen und committen."
+            git diff --stat -- dist
+            exit 1
+          fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
