@@ -1,0 +1,1725 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logical-Werkstatt</title>
+<style>/* Kühles Papier und Tinte. Mono trägt das Raster, Serif die Sprache. */
+
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --surface-sunk: #eef1f5;
+  --ink: #16202b;
+  --ink-soft: #5b6b7c;
+  --line: #d3dbe3;
+  --line-strong: #9aa9b8;
+  --accent: #1b4d89;
+  --on-accent: #ffffff;
+  --accent-soft: #e3ecf7;
+  --yes: #17694a;
+  --yes-bg: #e2f0e9;
+  --no: #b3352c;
+  --no-bg: #f8e6e4;
+  --hl: #fdf6dd;
+  --shadow: 0 1px 2px rgba(22, 32, 43, .06), 0 8px 24px -16px rgba(22, 32, 43, .3);
+
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  --serif: "Iowan Old Style", "Charter", "Bitstream Charter", Georgia, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10161c;
+    --surface: #171f27;
+    --surface-sunk: #131b22;
+    --ink: #e4eaf0;
+    --ink-soft: #93a3b3;
+    --line: #2a3742;
+    --line-strong: #4a5b6b;
+    --accent: #6ba3e8;
+    --on-accent: #0d1319;
+    --accent-soft: #1c2c3e;
+    --yes: #4fbf92;
+    --yes-bg: #16302a;
+    --no: #e4796e;
+    --no-bg: #33201f;
+    --hl: #2b2716;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -16px rgba(0, 0, 0, .8);
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #10161c;
+  --surface: #171f27;
+  --surface-sunk: #131b22;
+  --ink: #e4eaf0;
+  --ink-soft: #93a3b3;
+  --line: #2a3742;
+  --line-strong: #4a5b6b;
+  --accent: #6ba3e8;
+  --on-accent: #0d1319;
+  --accent-soft: #1c2c3e;
+  --yes: #4fbf92;
+  --yes-bg: #16302a;
+  --no: #e4796e;
+  --no-bg: #33201f;
+  --hl: #2b2716;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -16px rgba(0, 0, 0, .8);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-text-size-adjust: 100%;
+}
+
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 20px 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ---------------------------------------------------------------- Kopf --- */
+
+header { display: flex; flex-direction: column; gap: 6px; }
+
+h1 {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.tagline { margin: 0; color: var(--ink-soft); font-size: 14.5px; max-width: 62ch; }
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  box-shadow: var(--shadow);
+}
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+
+label.cap, .cap {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+select, button, input[type="file"] { font: inherit; }
+
+select {
+  appearance: none;
+  background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%235b6b7c' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 10px center/10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  color: var(--ink);
+  padding: 7px 30px 7px 10px;
+  font-size: 14px;
+}
+
+button {
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 2px;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+button:disabled { opacity: .55; cursor: default; }
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+button.primary:hover:not(:disabled) { filter: brightness(1.08); color: var(--on-accent); }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.toggle { display: flex; align-items: center; gap: 7px; font-size: 13.5px; color: var(--ink-soft); }
+
+/* --------------------------------------------------------------- Karte --- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  box-shadow: var(--shadow);
+  padding: 22px;
+}
+
+.card-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 14px;
+  font-weight: 600;
+}
+
+.theme-name {
+  font-family: var(--serif);
+  font-size: 27px;
+  line-height: 1.2;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.intro {
+  font-family: var(--serif);
+  font-size: 17px;
+  color: var(--ink);
+  margin: 8px 0 0;
+  max-width: 66ch;
+}
+
+.meta { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); margin: 10px 0 0; }
+
+.status { font-size: 14.5px; padding: 10px 13px; border-radius: 2px; border-left: 3px solid var(--line-strong); background: var(--surface-sunk); }
+.status.ok { border-color: var(--yes); background: var(--yes-bg); color: var(--yes); }
+.status.warn { border-color: var(--no); background: var(--no-bg); color: var(--no); }
+
+.layout { display: grid; grid-template-columns: minmax(300px, 27rem) 1fr; gap: 22px; align-items: start; }
+/* Ohne min-width:0 erzwingt die breite Rastertabelle die Spaltenbreite und
+   schiebt die Hinweisspalte aus dem Bild. */
+.layout > * { min-width: 0; }
+.grid-wrap > * { max-width: none; }
+
+@media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
+
+/* ------------------------------------------------------------ Hinweise --- */
+
+ol#hints { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; counter-reset: none; }
+
+.hint {
+  display: flex;
+  gap: 11px;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  padding: 7px 9px;
+  font-family: var(--serif);
+  font-size: 16.5px;
+  line-height: 1.45;
+  color: var(--ink);
+  align-items: baseline;
+}
+
+.hint:hover { background: var(--surface-sunk); border-color: transparent; color: var(--ink); }
+
+.hint-no {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+  min-width: 1.6em;
+  font-variant-numeric: tabular-nums;
+}
+
+.hint[aria-pressed="true"] { color: var(--ink-soft); }
+.hint[aria-pressed="true"] .hint-text { text-decoration: line-through; text-decoration-thickness: 1px; }
+
+/* -------------------------------------------------------------- Raster --- */
+
+.grid-wrap { overflow-x: auto; padding-bottom: 4px; }
+
+table.grid { border-collapse: collapse; font-family: var(--mono); }
+
+table.grid th, table.grid td {
+  border: 1px solid var(--line);
+  font-weight: 400;
+  padding: 0;
+}
+
+.cat-head, .cat-side {
+  font-size: 10px;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: var(--surface-sunk);
+  padding: 5px 4px;
+}
+
+.cat-side { width: 20px; }
+.cat-side span { writing-mode: vertical-rl; transform: rotate(180deg); display: inline-block; white-space: nowrap; }
+
+.val-head { height: 108px; vertical-align: bottom; padding: 0 0 6px; }
+.val-head span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.val-side { text-align: right; padding: 0 9px; font-size: 12px; white-space: nowrap; max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
+
+.cell {
+  width: 30px; height: 30px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 15px;
+  user-select: none;
+  background: var(--surface);
+}
+
+.cell:hover { background: var(--accent-soft); }
+.cell.yes { color: var(--yes); background: var(--yes-bg); font-weight: 700; }
+.cell.no { color: var(--no); background: var(--no-bg); }
+.hl:not(.yes):not(.no) { background: var(--hl); }
+.corner { border: 0 !important; background: transparent; }
+
+/* Kräftigere Linien zwischen den Kategorieblöcken */
+table.grid td.block-start, table.grid th.block-start { border-left: 2px solid var(--line-strong); }
+table.grid tr.block-start > th, table.grid tr.block-start > td { border-top: 2px solid var(--line-strong); }
+
+/* -------------------------------------------------------- Lösungstafel --- */
+
+table.solution { border-collapse: collapse; width: 100%; }
+
+table.solution th, table.solution td { border: 1px solid var(--line); padding: 7px 9px; text-align: left; }
+
+table.solution thead th {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: var(--surface-sunk);
+  font-weight: 600;
+}
+
+table.solution tbody th { font-family: var(--mono); font-size: 13px; font-weight: 400; background: var(--surface-sunk); white-space: nowrap; }
+
+table.solution select { width: 100%; border-color: transparent; background-color: transparent; padding: 3px 26px 3px 4px; }
+table.solution select:hover { border-color: var(--line-strong); }
+table.solution td.right { background: var(--yes-bg); }
+table.solution td.wrong { background: var(--no-bg); }
+table.solution td.wrong select { color: var(--no); }
+
+.row-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+
+/* -------------------------------------------------------------- Archiv --- */
+
+table.archive { border-collapse: collapse; width: 100%; font-size: 14px; }
+table.archive th, table.archive td { border-bottom: 1px solid var(--line); padding: 7px 10px; text-align: left; }
+table.archive thead th {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--ink-soft); font-weight: 600;
+}
+table.archive td.num, table.archive th.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 13px; }
+.muted { color: var(--ink-soft); }
+.archive-head { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.file-label { display: inline-flex; align-items: center; border: 1px solid var(--line-strong); border-radius: 2px; padding: 8px 14px; font-size: 14px; cursor: pointer; }
+.file-label:hover { border-color: var(--accent); color: var(--accent); }
+.file-label input { display: none; }
+
+.empty { font-family: var(--serif); font-size: 18px; color: var(--ink-soft); text-align: center; padding: 40px 20px; }
+
+footer { color: var(--ink-soft); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  #puzzle[data-fresh] { animation: rise .3s ease-out; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Logical-Werkstatt</h1>
+    <p class="tagline">Erzeugt Logikrätsel mit fünf Kategorien zu je fünf Werten. Jedes Rätsel hat genau eine Lösung und lässt sich ohne Raten knacken, allein durch Schlussfolgern im Raster.</p>
+  </header>
+
+  <div class="controls">
+    <div class="field">
+      <label class="cap" for="theme">Thema</label>
+      <select id="theme"><option value="egal">Abwechselnd</option></select>
+    </div>
+    <div class="field">
+      <label class="cap" for="level">Schwierigkeit</label>
+      <select id="level">
+        <option value="mittel">Mittel</option>
+        <option value="leicht">Leicht</option>
+        <option value="knifflig">Knifflig</option>
+        <option value="egal">Egal</option>
+      </select>
+    </div>
+    <button id="generate" class="primary" type="button">Neues Logical</button>
+    <label class="toggle"><input type="checkbox" id="autocross" checked> Kreuze automatisch setzen</label>
+  </div>
+
+  <p class="status" id="status" hidden></p>
+
+  <p class="empty" id="empty">Noch kein Rätsel. Oben auf <strong>Neues Logical</strong> klicken.</p>
+
+  <section id="puzzle" hidden>
+    <div class="card">
+      <h2 class="theme-name" id="theme-name"></h2>
+      <p class="intro" id="intro"></p>
+      <p class="meta" id="meta"></p>
+    </div>
+
+    <div class="layout">
+      <div class="card">
+        <h3 class="card-label">Hinweise</h3>
+        <ol id="hints"></ol>
+      </div>
+
+      <div class="card">
+        <h3 class="card-label">Kreuzraster</h3>
+        <div class="grid-wrap"><div id="grid"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-label">Lösung</h3>
+      <div class="grid-wrap"><div id="solution"></div></div>
+      <div class="row-actions">
+        <button id="check" type="button">Prüfen</button>
+        <button id="clear" type="button">Eingaben löschen</button>
+        <button id="reveal" type="button">Lösung zeigen</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="archive-head">
+      <h3 class="card-label">Archiv</h3>
+      <span class="cap" id="archive-count"></span>
+    </div>
+    <div class="grid-wrap">
+      <table class="archive">
+        <thead><tr><th>Datum</th><th>Thema</th><th>Stufe</th><th class="num">Hinweise</th><th>Stand</th><th class="num">Dauer</th></tr></thead>
+        <tbody id="archive-body"></tbody>
+      </table>
+    </div>
+    <div class="row-actions">
+      <button id="export" type="button">Als Datei sichern</button>
+      <label class="file-label">Archiv einlesen<input type="file" id="import" accept="application/json"></label>
+      <button id="wipe" type="button">Archiv leeren</button>
+    </div>
+  </section>
+
+  <footer>
+    Das Archiv liegt in diesem Browser. Gesicherte Rätsel werden beim Erzeugen gemieden, und zuletzt gespielte Themen kommen nicht sofort wieder.
+  </footer>
+</div>
+
+<script>// Logical-Generator: Kern. Erzeugt und loest 5x5-Logicals rein deterministisch.
+//
+// Datenmodell
+//   Ein Raetsel hat 5 Kategorien mit je 5 Werten. Kategorie 0 ist der Anker
+//   (geordnet, z.B. Uhrzeiten) und legt die 5 Slots fest.
+//   Eine Loesung ist pro Kategorie eine Permutation: sol[c][slot] = Wertindex.
+//   Fuer den Anker gilt sol[0][slot] = slot.
+//
+// Hinweistypen
+//   eq    {a,x,b,y}     Wert x der Kategorie a gehoert zu Wert y der Kategorie b
+//   neq   {a,x,b,y}     ... gehoert nicht dazu
+//   before{a,x,b,y}     Slot von (a,x) liegt vor dem Slot von (b,y)
+//   dist  {a,x,b,y,d}   Slot von (b,y) minus Slot von (a,x) ist genau d
+//   gap   {a,x,b,y,d}   Abstand der Slots ist genau d, Richtung offen
+//   or    {a,x1,x2,b,y} (b,y) gehoert zu x1 oder zu x2 der Kategorie a
+//
+// Der Solver arbeitet wie ein Mensch am Kreuzraster: Kreuze setzen und
+// weiterschliessen, niemals raten. Was er nicht knackt, wird nicht ausgeliefert.
+
+const N = 5;
+const NCAT = 5;
+
+// ---------------------------------------------------------------- Zufall ----
+
+// Deterministischer PRNG (mulberry32), damit ein Seed dasselbe Raetsel liefert.
+function makeRng(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function shuffled(arr, rng) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function randInt(rng, n) { return Math.floor(rng() * n); }
+
+// -------------------------------------------------------------- Loesung ----
+
+function randomSolution(rng) {
+  const sol = [];
+  const identity = [0, 1, 2, 3, 4];
+  sol.push(identity.slice());
+  for (let c = 1; c < NCAT; c++) sol.push(shuffled(identity, rng));
+  return sol;
+}
+
+// slotOf[c][wertIndex] = slot
+function slotIndex(sol) {
+  return sol.map((perm) => {
+    const inv = new Array(N);
+    for (let s = 0; s < N; s++) inv[perm[s]] = s;
+    return inv;
+  });
+}
+
+// ---------------------------------------------------------------- Raster ----
+// grid[a][b] ist eine NxN-Matrix mit 0 unbekannt, 1 gehoert zusammen, -1 nicht.
+// Gefuehrt wird sie fuer alle geordneten Paare a != b, gespiegelt gehalten.
+
+function emptyGrid() {
+  const g = [];
+  for (let a = 0; a < NCAT; a++) {
+    g.push([]);
+    for (let b = 0; b < NCAT; b++) {
+      g[a].push(a === b ? null : Array.from({ length: N }, () => new Int8Array(N)));
+    }
+  }
+  // Der Anker ist mit sich selbst identisch: Slot p traegt Ankerwert p.
+  return g;
+}
+
+function setCell(g, a, x, b, y, v, state) {
+  const cur = g[a][b][x][y];
+  if (cur === v) return true;
+  if (cur !== 0) { state.contradiction = true; return false; }
+  g[a][b][x][y] = v;
+  g[b][a][y][x] = v;
+  state.changed = true;
+  state.derived++;
+  return true;
+}
+
+// Moegliche Slots eines Werts: ueber die Beziehung zum Anker (Kategorie 0).
+function possibleSlots(g, c, v) {
+  if (c === 0) return [v];
+  const out = [];
+  for (let p = 0; p < N; p++) if (g[0][c][p][v] !== -1) out.push(p);
+  return out;
+}
+
+function forbidSlot(g, c, v, p, state) {
+  if (c === 0) { if (p === v) state.contradiction = true; return; }
+  setCell(g, 0, p, c, v, -1, state);
+}
+
+// ----------------------------------------------------------- Propagation ----
+
+function propagateHint(g, h, state) {
+  switch (h.type) {
+    case 'eq':
+      setCell(g, h.a, h.x, h.b, h.y, 1, state);
+      break;
+    case 'neq':
+      setCell(g, h.a, h.x, h.b, h.y, -1, state);
+      break;
+    case 'before': {
+      const pa = possibleSlots(g, h.a, h.x);
+      const pb = possibleSlots(g, h.b, h.y);
+      if (!pa.length || !pb.length) { state.contradiction = true; return; }
+      const maxB = pb[pb.length - 1], minA = pa[0];
+      for (const p of pa) if (p >= maxB) forbidSlot(g, h.a, h.x, p, state);
+      for (const q of pb) if (q <= minA) forbidSlot(g, h.b, h.y, q, state);
+      break;
+    }
+    case 'dist': {
+      const pa = possibleSlots(g, h.a, h.x);
+      const pb = possibleSlots(g, h.b, h.y);
+      const okA = new Set(pb.map((q) => q - h.d));
+      const okB = new Set(pa.map((p) => p + h.d));
+      for (const p of pa) if (!okA.has(p)) forbidSlot(g, h.a, h.x, p, state);
+      for (const q of pb) if (!okB.has(q)) forbidSlot(g, h.b, h.y, q, state);
+      break;
+    }
+    case 'gap': {
+      const pa = possibleSlots(g, h.a, h.x);
+      const pb = possibleSlots(g, h.b, h.y);
+      const okA = new Set(); const okB = new Set();
+      for (const q of pb) { okA.add(q - h.d); okA.add(q + h.d); }
+      for (const p of pa) { okB.add(p - h.d); okB.add(p + h.d); }
+      for (const p of pa) if (!okA.has(p)) forbidSlot(g, h.a, h.x, p, state);
+      for (const q of pb) if (!okB.has(q)) forbidSlot(g, h.b, h.y, q, state);
+      break;
+    }
+    case 'or': {
+      const c1 = g[h.b][h.a][h.y][h.x1];
+      const c2 = g[h.b][h.a][h.y][h.x2];
+      if (c1 === -1 && c2 === -1) { state.contradiction = true; return; }
+      if (c1 === -1) setCell(g, h.b, h.y, h.a, h.x2, 1, state);
+      if (c2 === -1) setCell(g, h.b, h.y, h.a, h.x1, 1, state);
+      if (c1 === 1) setCell(g, h.b, h.y, h.a, h.x2, -1, state);
+      if (c2 === 1) setCell(g, h.b, h.y, h.a, h.x1, -1, state);
+      break;
+    }
+    default:
+      throw new Error('unbekannter Hinweistyp ' + h.type);
+  }
+}
+
+// Regel: ein Treffer schliesst Zeile und Spalte aus; vier Ausschluesse ergeben einen Treffer.
+function propagateBlocks(g, state) {
+  for (let a = 0; a < NCAT; a++) {
+    for (let b = 0; b < NCAT; b++) {
+      if (a === b) continue;
+      const m = g[a][b];
+      for (let x = 0; x < N; x++) {
+        let yes = -1, noCount = 0, freeY = -1;
+        for (let y = 0; y < N; y++) {
+          if (m[x][y] === 1) yes = y;
+          else if (m[x][y] === -1) noCount++;
+          else freeY = y;
+        }
+        if (yes >= 0) {
+          for (let y = 0; y < N; y++) if (y !== yes && m[x][y] !== -1) setCell(g, a, x, b, y, -1, state);
+        } else if (noCount === N - 1 && freeY >= 0) {
+          setCell(g, a, x, b, freeY, 1, state);
+        } else if (noCount === N) { state.contradiction = true; return; }
+      }
+    }
+  }
+}
+
+// Regel: Transitivitaet ueber eine Zwischenkategorie.
+function propagateTransitive(g, state) {
+  for (let a = 0; a < NCAT; a++) {
+    for (let c = 0; c < NCAT; c++) {
+      if (a === c) continue;
+      for (let b = 0; b < NCAT; b++) {
+        if (b === a || b === c) continue;
+        for (let x = 0; x < N; x++) {
+          for (let z = 0; z < N; z++) {
+            if (g[a][c][x][z] !== 0) continue;
+            let anyBridge = false, forcedYes = false;
+            for (let y = 0; y < N; y++) {
+              const ab = g[a][b][x][y], bc = g[b][c][y][z];
+              if (ab === -1 || bc === -1) continue;
+              anyBridge = true;
+              if (ab === 1 && bc === 1) { forcedYes = true; break; }
+            }
+            if (forcedYes) setCell(g, a, x, c, z, 1, state);
+            else if (!anyBridge) setCell(g, a, x, c, z, -1, state);
+            if (state.contradiction) return;
+          }
+        }
+      }
+    }
+  }
+}
+
+function isSolved(g) {
+  for (let c = 1; c < NCAT; c++) {
+    for (let v = 0; v < N; v++) {
+      let yes = 0;
+      for (let p = 0; p < N; p++) if (g[0][c][p][v] === 1) yes++;
+      if (yes !== 1) return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Loest wie ein Mensch am Raster: nur Schlussfolgerungen, kein Raten.
+ * Liefert {solved, contradiction, rounds, derived, grid}.
+ */
+function humanSolve(hints) {
+  const g = emptyGrid();
+  const state = { changed: true, contradiction: false, derived: 0 };
+  let rounds = 0;
+  while (state.changed && !state.contradiction && rounds < 200) {
+    state.changed = false;
+    rounds++;
+    for (const h of hints) { propagateHint(g, h, state); if (state.contradiction) break; }
+    if (!state.contradiction) propagateBlocks(g, state);
+    if (!state.contradiction) propagateTransitive(g, state);
+    if (isSolved(g)) break;
+  }
+  return { solved: !state.contradiction && isSolved(g), contradiction: state.contradiction, rounds, derived: state.derived, grid: g };
+}
+
+// ------------------------------------------------- Zaehlen aller Loesungen ----
+// Unabhaengige Gegenprobe per Tiefensuche. Nur zur Verifikation gedacht.
+
+const ALL_PERMS = (() => {
+  const out = [];
+  const perm = (arr, cur) => {
+    if (!arr.length) { out.push(cur.slice()); return; }
+    for (let i = 0; i < arr.length; i++) {
+      cur.push(arr[i]);
+      perm(arr.filter((_, j) => j !== i), cur);
+      cur.pop();
+    }
+  };
+  perm([0, 1, 2, 3, 4], []);
+  return out;
+})();
+
+function hintHolds(h, slotOf) {
+  const pa = h.a === 0 ? h.x : slotOf[h.a][h.x];
+  switch (h.type) {
+    case 'eq': return pa === slotOf[h.b][h.y];
+    case 'neq': return pa !== slotOf[h.b][h.y];
+    case 'before': return pa < slotOf[h.b][h.y];
+    case 'dist': return slotOf[h.b][h.y] - pa === h.d;
+    case 'gap': return Math.abs(slotOf[h.b][h.y] - pa) === h.d;
+    case 'or': {
+      const p = slotOf[h.b][h.y];
+      return slotOf[h.a][h.x1] === p || slotOf[h.a][h.x2] === p;
+    }
+    default: return false;
+  }
+}
+
+/** Zaehlt Loesungen bis maximal `limit`. */
+function countSolutions(hints, limit = 2) {
+  const byLevel = [];
+  const seen = new Set([0]);
+  for (let c = 1; c < NCAT; c++) {
+    seen.add(c);
+    byLevel.push(hints.filter((h) => {
+      const cats = h.type === 'or' ? [h.a, h.b] : [h.a, h.b];
+      return cats.every((k) => seen.has(k)) && cats.includes(c);
+    }));
+  }
+  let count = 0;
+  const slotOf = [[0, 1, 2, 3, 4]];
+  const dfs = (level) => {
+    if (count >= limit) return;
+    if (level === NCAT - 1) { count++; return; }
+    const c = level + 1;
+    for (const perm of ALL_PERMS) {
+      const inv = new Array(N);
+      for (let s = 0; s < N; s++) inv[perm[s]] = s;
+      slotOf[c] = inv;
+      let ok = true;
+      for (const h of byLevel[level]) if (!hintHolds(h, slotOf)) { ok = false; break; }
+      if (ok) { dfs(level + 1); if (count >= limit) { slotOf.length = c; return; } }
+    }
+    slotOf.length = c;
+  };
+  dfs(0);
+  return count;
+}
+
+// ------------------------------------------------------- Hinweis-Erzeugung ----
+
+function buildPool(sol, rng, opts) {
+  const slotOf = slotIndex(sol);
+  const pool = [];
+  const push = (h, weight) => { h.weight = weight; pool.push(h); };
+
+  for (let a = 0; a < NCAT; a++) {
+    for (let b = a + 1; b < NCAT; b++) {
+      for (let x = 0; x < N; x++) {
+        for (let y = 0; y < N; y++) {
+          const same = slotOf[a][x] === slotOf[b][y];
+          if (same) push({ type: 'eq', a, x, b, y }, opts.wEq);
+          else push({ type: 'neq', a, x, b, y }, opts.wNeq);
+        }
+      }
+    }
+  }
+  // Ordnungsaussagen: nur sinnvoll, weil Kategorie 0 geordnet ist.
+  for (let a = 0; a < NCAT; a++) {
+    for (let b = 0; b < NCAT; b++) {
+      if (a === b) continue;
+      for (let x = 0; x < N; x++) {
+        for (let y = 0; y < N; y++) {
+          const pa = slotOf[a][x], pb = slotOf[b][y];
+          if (pa < pb) push({ type: 'before', a, x, b, y }, opts.wBefore);
+          const d = pb - pa;
+          if (d === 1 || d === 2) push({ type: 'dist', a, x, b, y, d }, opts.wDist);
+          if (a < b && Math.abs(d) >= 1 && Math.abs(d) <= 2) {
+            push({ type: 'gap', a, x, b, y, d: Math.abs(d) }, opts.wGap);
+          }
+        }
+      }
+    }
+  }
+  // Oder-Aussagen
+  for (let a = 0; a < NCAT; a++) {
+    for (let b = 0; b < NCAT; b++) {
+      if (a === b) continue;
+      for (let y = 0; y < N; y++) {
+        const trueX = sol[a][slotOf[b][y]];
+        for (let alt = 0; alt < N; alt++) {
+          if (alt === trueX) continue;
+          const [x1, x2] = trueX < alt ? [trueX, alt] : [alt, trueX];
+          push({ type: 'or', a, x1, x2, b, y }, opts.wOr);
+        }
+      }
+    }
+  }
+  return shuffled(pool, rng);
+}
+
+// Ein Hinweis ist nur brauchbar, wenn er dem aktuellen Wissensstand etwas hinzufuegt.
+function addsInformation(hints, candidate) {
+  const before = humanSolve(hints);
+  if (before.contradiction) return false;
+  const after = humanSolve(hints.concat([candidate]));
+  return after.derived > before.derived;
+}
+
+// Gewichte der Hinweistypen im Pool. Gemessen ueber je 30 Raetsel: diese
+// Mischung ergibt rund 28 % direkte Zuordnungen, 24 % Abstands- und 15 %
+// Reihenfolgeaussagen. Mehr Ordnungshinweise lesen sich schnell monoton.
+const DEFAULT_OPTS = {
+  wEq: 8, wNeq: 3, wBefore: 2, wDist: 2.5, wGap: 1.5, wOr: 2.5,
+  maxHints: 22,
+  // Drei direkte Zuordnungen zwischen denselben zwei Kategorien schenken die
+  // restlichen zwei her. Zwei sind die Grenze, ab der noch Arbeit bleibt.
+  maxEqPerPair: 2,
+};
+
+function tooManyDirect(chosen, cand, limit) {
+  if (cand.type !== 'eq') return false;
+  let n = 0;
+  for (const h of chosen) {
+    if (h.type === 'eq' && h.a === cand.a && h.b === cand.b) n++;
+  }
+  return n >= limit;
+}
+
+function weightedPick(pool, rng) {
+  let total = 0;
+  for (const h of pool) total += h.weight;
+  let r = rng() * total;
+  for (let i = 0; i < pool.length; i++) {
+    r -= pool[i].weight;
+    if (r <= 0) return i;
+  }
+  return pool.length - 1;
+}
+
+/**
+ * Baut aus einer Loesung eine minimale, ohne Raten loesbare Hinweismenge.
+ * Gibt null zurueck, wenn der Versuch nicht konvergiert.
+ */
+function buildHints(sol, rng, options = {}) {
+  const opts = { ...DEFAULT_OPTS, ...options };
+  const pool = buildPool(sol, rng, opts);
+  const chosen = [];
+  let guard = 0;
+
+  while (guard++ < 400) {
+    const res = humanSolve(chosen);
+    if (res.solved) break;
+    if (chosen.length >= opts.maxHints) return null;
+    let picked = null;
+    for (let tries = 0; tries < 60 && picked === null; tries++) {
+      const idx = weightedPick(pool, rng);
+      const cand = pool[idx];
+      if (tooManyDirect(chosen, cand, opts.maxEqPerPair)) continue;
+      if (addsInformation(chosen, cand)) { picked = cand; pool.splice(idx, 1); }
+    }
+    if (!picked) return null;
+    chosen.push(picked);
+  }
+  if (!humanSolve(chosen).solved) return null;
+
+  // Rueckwaerts ausduennen: was der Solver auch ohne schafft, fliegt raus.
+  for (let i = chosen.length - 1; i >= 0; i--) {
+    const trial = chosen.slice(0, i).concat(chosen.slice(i + 1));
+    if (humanSolve(trial).solved) chosen.splice(i, 1);
+  }
+  return chosen;
+}
+
+/** Kennzahlen, aus denen sich die Schwierigkeit ableitet. */
+function rateDifficulty(hints) {
+  const res = humanSolve(hints);
+  const kinds = {};
+  for (const h of hints) kinds[h.type] = (kinds[h.type] || 0) + 1;
+  const negShare = (kinds.neq || 0) / hints.length;
+  // Wenige Hinweise heisst: jeder einzelne traegt mehr, es muss mehr kombiniert werden.
+  const score = res.rounds * 2 + hints.length * 1.5 + negShare * 10;
+  let level = 'mittel';
+  if (score < 30) level = 'leicht';
+  else if (score > 42) level = 'knifflig';
+  return { level, score: Math.round(score), rounds: res.rounds, count: hints.length, kinds, negShare };
+}
+
+/**
+ * Erzeugt ein vollstaendiges Raetsel. Probiert so lange, bis eines im
+ * gewuenschten Schwierigkeitsband liegt und die Gegenprobe eindeutig ist.
+ */
+function generatePuzzle(seed, { levels = ['leicht', 'mittel', 'knifflig'], attempts = 60, options = {} } = {}) {
+  const rng = makeRng(seed);
+  let fallback = null;
+  for (let i = 0; i < attempts; i++) {
+    const sol = randomSolution(rng);
+    const hints = buildHints(sol, rng, options);
+    if (!hints) continue;
+    if (countSolutions(hints, 2) !== 1) continue;
+    const rating = rateDifficulty(hints);
+    const puzzle = { seed, solution: sol, hints, rating };
+    if (levels.includes(rating.level)) return puzzle;
+    if (!fallback) fallback = puzzle;
+  }
+  return fallback;
+}
+
+// Themenwelten. Jede hat 5 Kategorien mit je 5 Werten.
+// Kategorie 0 ist der geordnete Anker und bildet die Zeilen der Loesungstabelle.
+//
+// Pro Kategorie:
+//   label  Spaltenueberschrift im Raster
+//   values die fuenf Werte
+//   pred   Praedikat, beginnt IMMER mit dem finiten Verb ("kauft den Mantel").
+//          Die Verneinung entsteht daraus mechanisch: Verb + "nicht" + Rest.
+//   ref    Nominativ-Nominalphrase, die als Satzsubjekt und nach "als" passt.
+//
+// Regel fuer die Werte: pro Kategorie einheitliches Genus, damit ein einziges
+// Artikel-Template in pred und ref immer korrekt flektiert.
+//
+// order  Ordnungssaetze des Themas. Die zweite Seite steht immer im Nominativ
+//        ("... als X", "X und Y ..."), deshalb gibt es keine Kasusfallen.
+
+// Dativ Plural fuer die Balkon-Referenz ("die Partei mit Fahrraedern").
+const BALKON_DATIV = {
+  'Kräuter': 'Kräutern', 'Wäsche': 'Wäsche', 'Fahrräder': 'Fahrrädern',
+  'Sonnenschirme': 'Sonnenschirmen', 'Blumenkästen': 'Blumenkästen',
+};
+
+const THEMES = [
+  {
+    id: 'boutique',
+    name: 'In der Boutique',
+    intro: 'Fünf Kundinnen kommen nacheinander in eine kleine Boutique. Jede kauft ein anderes Stück, in einer anderen Farbe, und zahlt anders.',
+    order: {
+      before: (A, B) => `${A} ist früher da als ${B}.`,
+      dist: (A, B, d) => `${A} ist genau ${d === 1 ? 'eine Stunde' : 'zwei Stunden'} früher da als ${B}.`,
+      gap: (A, B, d) => `${A} und ${B} liegen genau ${d === 1 ? 'eine Stunde' : 'zwei Stunden'} auseinander.`,
+    },
+    cats: [
+      { label: 'Uhrzeit', values: ['10 Uhr', '11 Uhr', '12 Uhr', '13 Uhr', '14 Uhr'],
+        pred: (v) => `kommt um ${v}`, ref: (v) => `die Kundin um ${v}` },
+      { label: 'Kundin', values: ['Anja', 'Beate', 'Carla', 'Dilek', 'Eva'],
+        pred: (v) => `heißt ${v}`, ref: (v) => v },
+      { label: 'Kauf', values: ['Mantel', 'Schal', 'Rock', 'Gürtel', 'Hut'],
+        pred: (v) => `kauft den ${v}`, ref: (v) => `die Kundin mit dem ${v}` },
+      { label: 'Farbe', values: ['Rot', 'Blau', 'Grün', 'Beige', 'Schwarz'],
+        pred: (v) => `wählt ${v}`, ref: (v) => `die Kundin in ${v}` },
+      { label: 'Zahlung', values: ['bar', 'mit Karte', 'per App', 'mit Gutschein', 'auf Rechnung'],
+        pred: (v) => `zahlt ${v}`, ref: (v) => `die Kundin, die ${v} zahlt` },
+    ],
+  },
+  {
+    id: 'fernreise',
+    name: 'Am Flughafen',
+    intro: 'Fünf Reisende starten am selben Tag in den Urlaub. Jeder fliegt woanders hin, nimmt anderes Gepäck mit und bleibt unterschiedlich lang.',
+    order: {
+      before: (A, B) => `${A} startet früher als ${B}.`,
+      dist: (A, B, d) => `${A} startet genau ${d === 1 ? 'drei Stunden' : 'sechs Stunden'} früher als ${B}.`,
+      gap: (A, B, d) => `${A} und ${B} liegen genau ${d === 1 ? 'drei Stunden' : 'sechs Stunden'} auseinander.`,
+    },
+    cats: [
+      { label: 'Abflug', values: ['6 Uhr', '9 Uhr', '12 Uhr', '15 Uhr', '18 Uhr'],
+        pred: (v) => `fliegt um ${v}`, ref: (v) => `der Reisende um ${v}` },
+      { label: 'Name', values: ['Frank', 'Greta', 'Hakan', 'Ines', 'Jonas'],
+        pred: (v) => `heißt ${v}`, ref: (v) => v },
+      { label: 'Ziel', values: ['Kanada', 'Japan', 'Chile', 'Kenia', 'Island'],
+        pred: (v) => `fliegt nach ${v}`, ref: (v) => `der Reisende nach ${v}` },
+      { label: 'Gepäck', values: ['Rucksack', 'Koffer', 'Seesack', 'Trolley', 'Kleidersack'],
+        pred: (v) => `nimmt den ${v}`, ref: (v) => `der Reisende mit dem ${v}` },
+      { label: 'Dauer', values: ['eine Woche', 'zehn Tage', 'zwei Wochen', 'drei Wochen', 'einen Monat'],
+        pred: (v) => `bleibt ${v} lang`, neg: (v) => `bleibt nicht ${v} lang`,
+        ref: (v) => `der Reisende, der ${v} lang bleibt` },
+    ],
+  },
+  {
+    id: 'wochenmarkt',
+    name: 'Auf dem Wochenmarkt',
+    intro: 'Fünf Stände stehen nebeneinander in einer Reihe, von links nach rechts. Jeder Händler verkauft etwas anderes, kommt aus einer anderen Gegend und hat eine andere Markise.',
+    order: {
+      before: (A, B) => `${A} steht weiter links als ${B}.`,
+      dist: (A, B, d) => `${A} steht genau ${d === 1 ? 'einen Stand' : 'zwei Stände'} weiter links als ${B}.`,
+      gap: (A, B, d) => `${A} und ${B} stehen genau ${d === 1 ? 'einen Stand' : 'zwei Stände'} auseinander.`,
+    },
+    cats: [
+      { label: 'Stand', values: ['Stand 1', 'Stand 2', 'Stand 3', 'Stand 4', 'Stand 5'],
+        pred: (v) => `steht an ${v}`, ref: (v) => `der Händler an ${v}` },
+      { label: 'Händler', values: ['Kaya', 'Lena', 'Mirko', 'Nadja', 'Olaf'],
+        pred: (v) => `heißt ${v}`, ref: (v) => v },
+      { label: 'Ware', values: ['Käse', 'Honig', 'Fisch', 'Spargel', 'Kuchen'],
+        pred: (v) => `verkauft ${v}`, neg: (v) => `verkauft keinen ${v}`,
+        ref: (v) => `der Händler mit ${v}` },
+      { label: 'Herkunft', values: ['Eifel', 'Altmark', 'Bergstraße', 'Uckermark', 'Pfalz'],
+        pred: (v) => `kommt aus der ${v}`, ref: (v) => `der Händler aus der ${v}` },
+      { label: 'Markise', values: ['gestreift', 'kariert', 'einfarbig', 'geblümt', 'ausgeblichen'],
+        pred: (v) => `hat eine ${v}e Markise`, neg: (v) => `hat keine ${v}e Markise`,
+        ref: (v) => `der Händler mit der ${v}en Markise` },
+    ],
+  },
+  {
+    id: 'tierarzt',
+    name: 'In der Tierarztpraxis',
+    intro: 'Fünf Termine an einem Vormittag. Jedes Tier gehört jemand anderem, heißt anders und ist aus einem anderen Grund da.',
+    order: {
+      before: (A, B) => `${A} ist früher dran als ${B}.`,
+      dist: (A, B, d) => `${A} ist genau ${d === 1 ? 'eine halbe Stunde' : 'eine Stunde'} früher dran als ${B}.`,
+      gap: (A, B, d) => `${A} und ${B} liegen genau ${d === 1 ? 'eine halbe Stunde' : 'eine Stunde'} auseinander.`,
+    },
+    cats: [
+      { label: 'Termin', values: ['8:00', '8:30', '9:00', '9:30', '10:00'],
+        pred: (v) => `hat den Termin um ${v}`, neg: (v) => `hat keinen Termin um ${v}`,
+        ref: (v) => `der Patient um ${v}` },
+      { label: 'Besitzer', values: ['Pia', 'Quentin', 'Rosa', 'Sven', 'Tanja'],
+        pred: (v) => `gehört ${v}`, ref: (v) => `das Tier von ${v}` },
+      { label: 'Tier', values: ['Kater', 'Wellensittich', 'Dackel', 'Hamster', 'Terrier'],
+        pred: (v) => `ist ein ${v}`, ref: (v) => `der ${v}` },
+      { label: 'Tiername', values: ['Wumme', 'Xaver', 'Yuki', 'Zorro', 'Struppi'],
+        pred: (v) => `heißt ${v}`, ref: (v) => `das Tier namens ${v}` },
+      { label: 'Anlass', values: ['der Impfung', 'der Kontrolle', 'des Zahnsteins', 'der Pfote', 'der Ohren'],
+        pred: (v) => `kommt wegen ${v}`, ref: (v) => `der Patient wegen ${v}` },
+    ],
+  },
+  {
+    id: 'mietshaus',
+    name: 'Im Mietshaus',
+    intro: 'Fünf Parteien wohnen übereinander. Jede arbeitet woanders, hat ein anderes Haustier und einen anderen Balkon.',
+    order: {
+      before: (A, B) => `${A} wohnt weiter unten als ${B}.`,
+      dist: (A, B, d) => `${A} wohnt genau ${d === 1 ? 'ein Stockwerk' : 'zwei Stockwerke'} tiefer als ${B}.`,
+      gap: (A, B, d) => `${A} und ${B} liegen genau ${d === 1 ? 'ein Stockwerk' : 'zwei Stockwerke'} auseinander.`,
+    },
+    cats: [
+      { label: 'Etage', values: ['Erdgeschoss', '1. Stock', '2. Stock', '3. Stock', '4. Stock'],
+        pred: (v) => `wohnt im ${v}`, ref: (v) => `die Partei im ${v}` },
+      { label: 'Bewohner', values: ['Udo', 'Vera', 'Walid', 'Xenia', 'Yasin'],
+        pred: (v) => `heißt ${v}`, ref: (v) => v },
+      { label: 'Beruf', values: ['Bäcker', 'Fahrlehrer', 'Tischler', 'Apotheker', 'Kameramann'],
+        pred: (v) => `arbeitet als ${v}`, ref: (v) => `der ${v}` },
+      { label: 'Haustier', values: ['Kater', 'Papagei', 'Goldfisch', 'Terrier', 'Hamster'],
+        pred: (v) => `hält einen ${v}`, ref: (v) => `die Partei mit dem ${v}` },
+      { label: 'Balkon', values: ['Kräuter', 'Wäsche', 'Fahrräder', 'Sonnenschirme', 'Blumenkästen'],
+        pred: (v) => `hat ${v} auf dem Balkon`, neg: (v) => `hat keine ${v} auf dem Balkon`,
+        ref: (v) => `die Partei mit ${BALKON_DATIV[v]} auf dem Balkon` },
+    ],
+  },
+  {
+    id: 'festival',
+    name: 'Auf dem Festival',
+    intro: 'Fünf Bands spielen nacheinander auf derselben Bühne. Jede kommt woanders her, spielt ein anderes Genre und steht unterschiedlich lang oben.',
+    order: {
+      before: (A, B) => `${A} spielt früher als ${B}.`,
+      dist: (A, B, d) => `${A} spielt genau ${d === 1 ? 'zwei Stunden' : 'vier Stunden'} früher als ${B}.`,
+      gap: (A, B, d) => `${A} und ${B} liegen genau ${d === 1 ? 'zwei Stunden' : 'vier Stunden'} auseinander.`,
+    },
+    cats: [
+      { label: 'Beginn', values: ['14 Uhr', '16 Uhr', '18 Uhr', '20 Uhr', '22 Uhr'],
+        pred: (v) => `spielt um ${v}`, ref: (v) => `die Band um ${v}` },
+      { label: 'Band', values: ['Nordwand', 'Kupfer', 'Halbmast', 'Fliehkraft', 'Tonspur'],
+        pred: (v) => `heißt ${v}`, ref: (v) => v },
+      { label: 'Genre', values: ['Punk', 'Soul', 'Techno', 'Folk', 'Jazz'],
+        pred: (v) => `spielt ${v}`, ref: (v) => `die ${v}band` },
+      { label: 'Herkunft', values: ['Bremen', 'Graz', 'Basel', 'Rostock', 'Trier'],
+        pred: (v) => `kommt aus ${v}`, ref: (v) => `die Band aus ${v}` },
+      { label: 'Spieldauer', values: ['30 Minuten', '40 Minuten', '50 Minuten', '60 Minuten', '75 Minuten'],
+        pred: (v) => `spielt ${v} lang`, ref: (v) => `die Band mit ${v} Spielzeit` },
+    ],
+  },
+  {
+    id: 'bibliothek',
+    name: 'Im Bücherregal',
+    intro: 'Fünf Bücher stehen nebeneinander im Regal, von links nach rechts. Jedes hat einen anderen Umschlag, ein anderes Thema und einen anderen Umfang.',
+    order: {
+      before: (A, B) => `${A} steht weiter links als ${B}.`,
+      dist: (A, B, d) => `${A} steht genau ${d === 1 ? 'einen Platz' : 'zwei Plätze'} weiter links als ${B}.`,
+      gap: (A, B, d) => `${A} und ${B} stehen genau ${d === 1 ? 'einen Platz' : 'zwei Plätze'} auseinander.`,
+    },
+    cats: [
+      { label: 'Platz', values: ['Platz 1', 'Platz 2', 'Platz 3', 'Platz 4', 'Platz 5'],
+        pred: (v) => `steht auf ${v}`, ref: (v) => `das Buch auf ${v}` },
+      { label: 'Thema', values: ['Seefahrt', 'Vulkanismus', 'Imkerei', 'Kartografie', 'Backen'],
+        pred: (v) => `handelt von ${v}`, ref: (v) => `das Buch über ${v}` },
+      { label: 'Umschlag', values: ['Leinen', 'Pappe', 'Leder', 'Folie', 'Papier'],
+        pred: (v) => `hat einen Umschlag aus ${v}`, ref: (v) => `das Buch aus ${v}` },
+      { label: 'Leser', values: ['Zoe', 'Arno', 'Bernd', 'Cilly', 'Dorit'],
+        pred: (v) => `wurde von ${v} gelesen`, ref: (v) => `das Buch von ${v}` },
+      { label: 'Seiten', values: ['80', '140', '220', '310', '460'],
+        pred: (v) => `hat ${v} Seiten`, ref: (v) => `das Buch mit ${v} Seiten` },
+    ],
+  },
+  {
+    id: 'kochkurs',
+    name: 'Im Kochkurs',
+    intro: 'Fünf Teilnehmer stehen an fünf Herden nebeneinander. Jeder kocht etwas anderes, benutzt eine andere Hauptzutat und trägt eine andere Schürze.',
+    order: {
+      before: (A, B) => `${A} steht weiter links als ${B}.`,
+      dist: (A, B, d) => `${A} steht genau ${d === 1 ? 'einen Herd' : 'zwei Herde'} weiter links als ${B}.`,
+      gap: (A, B, d) => `${A} und ${B} stehen genau ${d === 1 ? 'einen Herd' : 'zwei Herde'} auseinander.`,
+    },
+    cats: [
+      { label: 'Herd', values: ['Herd 1', 'Herd 2', 'Herd 3', 'Herd 4', 'Herd 5'],
+        pred: (v) => `steht an ${v}`, ref: (v) => `der Teilnehmer an ${v}` },
+      { label: 'Teilnehmer', values: ['Emre', 'Fiona', 'Georg', 'Hanna', 'Ilja'],
+        pred: (v) => `heißt ${v}`, ref: (v) => v },
+      { label: 'Gericht', values: ['Auflauf', 'Eintopf', 'Braten', 'Salat', 'Kuchen'],
+        pred: (v) => `kocht den ${v}`, ref: (v) => `der Teilnehmer mit dem ${v}` },
+      { label: 'Zutat', values: ['Fenchel', 'Ingwer', 'Kürbis', 'Lauch', 'Rhabarber'],
+        pred: (v) => `nimmt ${v}`, neg: (v) => `nimmt keinen ${v}`,
+        ref: (v) => `der Teilnehmer, der ${v} nimmt` },
+      { label: 'Schürze', values: ['weiß', 'blau', 'grün', 'gelb', 'gestreift'],
+        pred: (v) => `trägt eine ${v}e Schürze`, neg: (v) => `trägt keine ${v}e Schürze`,
+        ref: (v) => `der Teilnehmer in der ${v}en Schürze` },
+    ],
+  },
+  {
+    id: 'zugfahrt',
+    name: 'Im Zug',
+    intro: 'Fünf Fahrgäste sitzen im selben Wagen. Der Zug hält nacheinander an fünf Bahnhöfen, und jeder steigt an einem anderen aus.',
+    order: {
+      before: (A, B) => `${A} steigt früher aus als ${B}.`,
+      dist: (A, B, d) => `${A} steigt genau ${d === 1 ? 'einen Halt' : 'zwei Halte'} früher aus als ${B}.`,
+      gap: (A, B, d) => `${A} und ${B} liegen genau ${d === 1 ? 'einen Halt' : 'zwei Halte'} auseinander.`,
+    },
+    cats: [
+      { label: 'Halt', values: ['Kassel', 'Fulda', 'Würzburg', 'Nürnberg', 'München'],
+        pred: (v) => `steigt in ${v} aus`, ref: (v) => `der Fahrgast bis ${v}` },
+      { label: 'Fahrgast', values: ['Jörg', 'Kira', 'Lars', 'Mila', 'Nils'],
+        pred: (v) => `heißt ${v}`, ref: (v) => v },
+      { label: 'Platz', values: ['Fensterplatz', 'Gangplatz', 'Klapptisch', 'Vierertisch', 'Notausgang'],
+        pred: (v) => `sitzt am ${v}`, ref: (v) => `der Fahrgast am ${v}` },
+      { label: 'Getränk', values: ['Kaffee', 'Tee', 'Apfelsaft', 'Sprudel', 'Kakao'],
+        pred: (v) => `trinkt ${v}`, neg: (v) => `trinkt keinen ${v}`,
+        ref: (v) => `der Fahrgast, der ${v} trinkt` },
+      { label: 'Zeitvertreib', values: ['einem Krimi', 'dem Laptop', 'Kreuzworträtseln', 'Schlaf', 'der Aussicht'],
+        pred: (v) => `beschäftigt sich mit ${v}`, ref: (v) => `der Fahrgast mit ${v}` },
+    ],
+  },
+  {
+    id: 'schrebergarten',
+    name: 'In der Kleingartenanlage',
+    intro: 'Fünf Parzellen liegen nebeneinander am Weg. Jede gehört jemand anderem, hat einen anderen Anbau und eine andere Laube.',
+    order: {
+      before: (A, B) => `${A} liegt weiter vorn am Weg als ${B}.`,
+      dist: (A, B, d) => `${A} liegt genau ${d === 1 ? 'eine Parzelle' : 'zwei Parzellen'} weiter vorn am Weg als ${B}.`,
+      gap: (A, B, d) => `${A} und ${B} liegen genau ${d === 1 ? 'eine Parzelle' : 'zwei Parzellen'} auseinander.`,
+    },
+    cats: [
+      { label: 'Parzelle', values: ['Parzelle 1', 'Parzelle 2', 'Parzelle 3', 'Parzelle 4', 'Parzelle 5'],
+        pred: (v) => `liegt auf ${v}`, ref: (v) => `der Garten auf ${v}` },
+      { label: 'Pächter', values: ['Otto', 'Petra', 'Ruben', 'Sara', 'Timo'],
+        pred: (v) => `gehört ${v}`, ref: (v) => `der Garten von ${v}` },
+      { label: 'Anbau', values: ['Tomaten', 'Bohnen', 'Erdbeeren', 'Zucchini', 'Radieschen'],
+        pred: (v) => `zieht ${v}`, neg: (v) => `zieht keine ${v}`,
+        ref: (v) => `der Garten mit ${v}` },
+      { label: 'Laube', values: ['Holzlaube', 'Steinlaube', 'Blechhütte', 'Glasveranda', 'Zeltplane'],
+        pred: (v) => `hat eine ${v}`, ref: (v) => `der Garten mit der ${v}` },
+      { label: 'Wasser', values: ['einer Regentonne', 'einem Brunnen', 'dem Schlauch', 'der Gießkanne', 'einem Tropfschlauch'],
+        pred: (v) => `gießt mit ${v}`, neg: (v) => `gießt nicht mit ${v}`,
+        ref: (v) => `der Garten, der mit ${v} gießt` },
+    ],
+  },
+];
+
+// Aus Hinweis-Objekten werden deutsche Saetze.
+//
+// Zwei Regeln tragen den ganzen Satzbau:
+//   1. Jedes Praedikat beginnt mit dem finiten Verb. Die Verneinung ist deshalb
+//      mechanisch: Verb + "nicht" + Rest.
+//   2. Enthaelt eine Referenz einen Relativsatz (erkennbar am Komma), wird er
+//      vor dem Praedikat wieder geschlossen.
+
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+const KEIN = { ein: 'kein', eine: 'keine', einen: 'keinen', einem: 'keinem', einer: 'keiner' };
+
+function negate(pred) {
+  const w = pred.split(' ');
+  // "haelt einen Goldfisch" wird zu "haelt keinen Goldfisch", nicht zu "nicht einen".
+  for (let i = 1; i < w.length; i++) {
+    if (KEIN[w[i]]) { w[i] = KEIN[w[i]]; return w.join(' '); }
+  }
+  if (w.length < 2) return pred + ' nicht';
+  // "beschaeftigt sich mit X": das Reflexivpronomen bleibt am Verb.
+  const at = w[1] === 'sich' ? 2 : 1;
+  return `${w.slice(0, at).join(' ')} nicht ${w.slice(at).join(' ')}`;
+}
+
+// "Die Kundin, die bar zahlt" + Praedikat braucht das schliessende Komma.
+function subject(ref) {
+  return ref.includes(', ') ? cap(ref) + ',' : cap(ref);
+}
+
+function clause(ref, pred) {
+  return `${subject(ref)} ${pred}.`;
+}
+
+// Gemeinsamen Wortanfang und -schluss ausklammern:
+// "kauft den Mantel" / "kauft den Schal" -> "kauft den Mantel oder Schal"
+function eitherOr(p1, p2) {
+  const a = p1.split(' '), b = p2.split(' ');
+  let pre = 0;
+  while (pre < a.length && pre < b.length && a[pre] === b[pre]) pre++;
+  let suf = 0;
+  while (suf < a.length - pre && suf < b.length - pre
+         && a[a.length - 1 - suf] === b[b.length - 1 - suf]) suf++;
+  // Einen Artikel am Ende des Praefixes wieder freigeben, sonst entsteht
+  // "kauft den Mantel oder Rock" statt "kauft den Mantel oder den Rock".
+  const ARTICLES = new Set(['der', 'die', 'das', 'den', 'dem', 'ein', 'eine', 'einen', 'einem', 'einer']);
+  while (pre > 0 && ARTICLES.has(a[pre - 1])) pre--;
+  const prefix = a.slice(0, pre).join(' ');
+  const midA = a.slice(pre, a.length - suf).join(' ');
+  const midB = b.slice(pre, b.length - suf).join(' ');
+  const suffix = a.slice(a.length - suf).join(' ');
+  if (!midA || !midB) return `${p1} oder ${p2}`;
+  return [prefix, `${midA} oder ${midB}`, suffix].filter(Boolean).join(' ');
+}
+
+/** Wandelt einen Hinweis in einen Satz. */
+function hintToText(theme, h) {
+  const C = theme.cats;
+  const ref = (c, i) => C[c].ref(C[c].values[i]);
+  const pred = (c, i) => C[c].pred(C[c].values[i]);
+  // Artikellose Objekte brauchen "kein" statt "nicht" ("verkauft keinen Kaese").
+  // Wo eine Kategorie das nicht selbst regelt, greift die mechanische Regel.
+  const negPred = (c, i) => (C[c].neg ? C[c].neg(C[c].values[i]) : negate(pred(c, i)));
+
+  switch (h.type) {
+    case 'eq':
+    case 'neq': {
+      // Als Subjekt die Seite ohne Relativsatz waehlen, das liest sich besser.
+      let [a, x, b, y] = [h.a, h.x, h.b, h.y];
+      const aClause = ref(a, x).includes(', ');
+      const bClause = ref(b, y).includes(', ');
+      if (aClause && !bClause) [a, x, b, y] = [b, y, a, x];
+      const p = h.type === 'eq' ? pred(b, y) : negPred(b, y);
+      return clause(ref(a, x), p);
+    }
+    // In Ordnungssaetzen steht die erste Seite nie am Satzende, ein Relativsatz
+    // dort muss also geschlossen werden. Bei "gap" gilt das auch fuer die zweite.
+    case 'before':
+      return theme.order.before(subject(ref(h.a, h.x)), ref(h.b, h.y));
+    case 'dist':
+      return theme.order.dist(subject(ref(h.a, h.x)), ref(h.b, h.y), h.d);
+    case 'gap': {
+      const B = ref(h.b, h.y);
+      return theme.order.gap(subject(ref(h.a, h.x)), B.includes(', ') ? B + ',' : B, h.d);
+    }
+    case 'or':
+      return clause(ref(h.b, h.y), eitherOr(pred(h.a, h.x1), pred(h.a, h.x2)));
+    default:
+      throw new Error('unbekannter Hinweistyp ' + h.type);
+  }
+}
+
+/**
+ * Sortiert die Hinweise so, dass sie sich gut lesen: erst die eindeutigen
+ * Zuordnungen, dann Ordnung und Auswahl, zuletzt die Ausschluesse.
+ */
+function orderHints(theme, hints) {
+  const rank = { eq: 0, dist: 1, gap: 2, before: 3, or: 4, neq: 5 };
+  return hints
+    .map((h, i) => ({ h, i, text: hintToText(theme, h) }))
+    .sort((p, q) => (rank[p.h.type] - rank[q.h.type]) || (p.i - q.i));
+}
+
+// Oberflaeche: Raetsel erzeugen, Raster bedienen, Archiv fuehren.
+
+const STORE = 'logical-archiv-v1';
+const $ = (sel, root = document) => root.querySelector(sel);
+
+const state = {
+  puzzle: null,
+  theme: null,
+  marks: new Map(),   // "a:x:b:y" -> 1 | -1
+  answers: {},        // slot -> {catIndex: valueIndex}
+  startedAt: 0,
+  revealed: false,
+  archived: false,
+};
+
+// ------------------------------------------------------------- Archiv -------
+
+function loadArchive() {
+  try { return JSON.parse(localStorage.getItem(STORE)) || []; }
+  catch { return []; }
+}
+
+function saveArchive(list) {
+  localStorage.setItem(STORE, JSON.stringify(list));
+}
+
+function signature(themeId, solution) {
+  return themeId + ':' + solution.map((p) => p.join('')).join('-');
+}
+
+// ------------------------------------------------------- Raetsel bauen ------
+
+function pickTheme(archive) {
+  // Zuletzt gespielte Themen meiden, damit sich die Welten abwechseln.
+  const recent = archive.slice(0, 4).map((e) => e.themeId);
+  const fresh = THEMES.filter((t) => !recent.includes(t.id));
+  const pot = fresh.length ? fresh : THEMES;
+  return pot[Math.floor(Math.random() * pot.length)];
+}
+
+function newPuzzle() {
+  const archive = loadArchive();
+  const wanted = $('#level').value;
+  const levels = wanted === 'egal' ? ['leicht', 'mittel', 'knifflig'] : [wanted];
+  const themeSel = $('#theme').value;
+  const theme = themeSel === 'egal'
+    ? pickTheme(archive)
+    : THEMES.find((t) => t.id === themeSel);
+
+  const seen = new Set(archive.map((e) => e.sig));
+  for (let tries = 0; tries < 40; tries++) {
+    const seed = (Math.random() * 2 ** 31) >>> 0;
+    const p = generatePuzzle(seed, { levels });
+    if (!p) continue;
+    if (seen.has(signature(theme.id, p.solution))) continue;
+    return { theme, puzzle: p };
+  }
+  return null;
+}
+
+function generate() {
+  const btn = $('#generate');
+  btn.disabled = true;
+  btn.textContent = 'Wird gebaut …';
+  // Einen Frame warten, damit der Ladezustand sichtbar wird.
+  setTimeout(() => {
+    const made = newPuzzle();
+    btn.disabled = false;
+    btn.textContent = 'Neues Logical';
+    if (!made) { setStatus('Kein neues Rätsel gefunden. Bitte noch einmal.', 'warn'); return; }
+    state.puzzle = made.puzzle;
+    state.theme = made.theme;
+    state.marks = new Map();
+    state.answers = {};
+    state.startedAt = Date.now();
+    state.revealed = false;
+    state.archived = false;
+    render();
+    setStatus('');
+    $('#puzzle').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 30);
+}
+
+// ------------------------------------------------------------ Rendern -------
+
+function setStatus(text, kind) {
+  const el = $('#status');
+  el.textContent = text;
+  el.className = 'status' + (kind ? ' ' + kind : '');
+  el.hidden = !text;
+}
+
+function render() {
+  const { theme, puzzle } = state;
+  $('#puzzle').hidden = false;
+  $('#empty').hidden = true;
+  $('#theme-name').textContent = theme.name;
+  $('#intro').textContent = theme.intro;
+  $('#meta').textContent =
+    `${puzzle.hints.length} Hinweise · ${puzzle.rating.level} · Nr. ${puzzle.seed.toString(36).toUpperCase()}`;
+  renderHints();
+  renderGrid();
+  renderSolution();
+  renderArchive();
+}
+
+function renderHints() {
+  const list = $('#hints');
+  list.innerHTML = '';
+  orderHints(state.theme, state.puzzle.hints).forEach((o, i) => {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'hint';
+    btn.innerHTML = `<span class="hint-no">${i + 1}</span><span class="hint-text"></span>`;
+    btn.querySelector('.hint-text').textContent = o.text;
+    btn.setAttribute('aria-pressed', 'false');
+    btn.title = 'Als abgearbeitet markieren';
+    btn.addEventListener('click', () => {
+      const on = btn.getAttribute('aria-pressed') === 'true';
+      btn.setAttribute('aria-pressed', String(!on));
+    });
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+}
+
+const key = (a, x, b, y) => (a < b ? `${a}:${x}:${b}:${y}` : `${b}:${y}:${a}:${x}`);
+
+function getMark(a, x, b, y) { return state.marks.get(key(a, x, b, y)) || 0; }
+
+function setMark(a, x, b, y, v) {
+  const k = key(a, x, b, y);
+  if (v === 0) state.marks.delete(k); else state.marks.set(k, v);
+}
+
+// Ein Treffer schliesst die uebrige Zeile und Spalte aus. Das nimmt dem
+// Spieler genau die Handarbeit ab, die keine Denkarbeit ist.
+function autoExclude(a, x, b, y) {
+  if (!$('#autocross').checked) return;
+  for (let i = 0; i < 5; i++) {
+    if (i !== y && getMark(a, x, b, i) === 0) setMark(a, x, b, i, -1);
+    if (i !== x && getMark(a, i, b, y) === 0) setMark(a, i, b, y, -1);
+  }
+}
+
+function cycle(a, x, b, y) {
+  const cur = getMark(a, x, b, y);
+  const next = cur === 0 ? 1 : cur === 1 ? -1 : 0;
+  setMark(a, x, b, y, next);
+  if (next === 1) {
+    autoExclude(a, x, b, y);
+    // Ein Treffer gegen die Ankerspalte fuellt die Loesungstabelle mit.
+    if (a === 0) setAnswer(x, b, y);
+    if (b === 0) setAnswer(y, a, x);
+  }
+  renderGrid();
+  renderSolution();
+}
+
+function renderGrid() {
+  const cats = state.theme.cats;
+  const colCats = [1, 2, 3, 4];
+  const rowCats = [0, 4, 3, 2];
+  const table = document.createElement('table');
+  table.className = 'grid';
+
+  // Kopf: Kategorienamen, darunter die Werte senkrecht.
+  const head = document.createElement('thead');
+  const r1 = document.createElement('tr');
+  r1.innerHTML = '<td class="corner" colspan="2"></td>';
+  colCats.forEach((c) => {
+    const th = document.createElement('th');
+    th.colSpan = 5;
+    th.className = 'cat-head';
+    th.textContent = cats[c].label;
+    r1.appendChild(th);
+  });
+  head.appendChild(r1);
+
+  const r2 = document.createElement('tr');
+  r2.innerHTML = '<td class="corner" colspan="2"></td>';
+  colCats.forEach((c) => {
+    cats[c].values.forEach((v, i) => {
+      const th = document.createElement('th');
+      th.className = 'val-head' + (i === 0 ? ' block-start' : '');
+      th.innerHTML = `<span>${v}</span>`;
+      th.dataset.col = `${c}:${i}`;
+      r2.appendChild(th);
+    });
+  });
+  head.appendChild(r2);
+  table.appendChild(head);
+
+  const body = document.createElement('tbody');
+  rowCats.forEach((rc, ri) => {
+    const span = colCats.length - ri; // Treppenform: jede Reihe eine Gruppe kuerzer
+    cats[rc].values.forEach((rv, rvi) => {
+      const tr = document.createElement('tr');
+      if (rvi === 0) {
+        const th = document.createElement('th');
+        th.className = 'cat-side';
+        th.rowSpan = 5;
+        th.innerHTML = `<span>${cats[rc].label}</span>`;
+        tr.appendChild(th);
+        tr.classList.add('block-start');
+      }
+      const rh = document.createElement('th');
+      rh.className = 'val-side';
+      rh.textContent = rv;
+      rh.dataset.row = `${rc}:${rvi}`;
+      tr.appendChild(rh);
+
+      for (let ci = 0; ci < span; ci++) {
+        const cc = colCats[ci];
+        cats[cc].values.forEach((_, cvi) => {
+          const td = document.createElement('td');
+          td.className = 'cell' + (cvi === 0 ? ' block-start' : '');
+          const m = getMark(rc, rvi, cc, cvi);
+          td.dataset.row = `${rc}:${rvi}`;
+          td.dataset.col = `${cc}:${cvi}`;
+          if (m === 1) { td.classList.add('yes'); td.textContent = '✓'; }
+          else if (m === -1) { td.classList.add('no'); td.textContent = '✗'; }
+          td.tabIndex = 0;
+          const act = () => cycle(rc, rvi, cc, cvi);
+          td.addEventListener('click', act);
+          td.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); }
+          });
+          tr.appendChild(td);
+        });
+      }
+      body.appendChild(tr);
+    });
+  });
+  table.appendChild(body);
+
+  const wrap = $('#grid');
+  wrap.innerHTML = '';
+  wrap.appendChild(table);
+  hookHighlight(table);
+}
+
+// Zeile und Spalte mitziehen: beim Lesen einer langen Reihe verrutscht sonst der Blick.
+function hookHighlight(table) {
+  table.addEventListener('mouseover', (e) => {
+    const t = e.target.closest('[data-row],[data-col]');
+    table.querySelectorAll('.hl').forEach((n) => n.classList.remove('hl'));
+    if (!t) return;
+    const { row, col } = t.dataset;
+    if (row) table.querySelectorAll(`[data-row="${row}"]`).forEach((n) => n.classList.add('hl'));
+    if (col) table.querySelectorAll(`[data-col="${col}"]`).forEach((n) => n.classList.add('hl'));
+  });
+  table.addEventListener('mouseleave', () => {
+    table.querySelectorAll('.hl').forEach((n) => n.classList.remove('hl'));
+  });
+}
+
+function setAnswer(slot, cat, val) {
+  if (!state.answers[slot]) state.answers[slot] = {};
+  state.answers[slot][cat] = val;
+}
+
+function renderSolution() {
+  const cats = state.theme.cats;
+  const table = document.createElement('table');
+  table.className = 'solution';
+  const head = document.createElement('thead');
+  const tr = document.createElement('tr');
+  [0, 1, 2, 3, 4].forEach((c) => {
+    const th = document.createElement('th');
+    th.textContent = cats[c].label;
+    tr.appendChild(th);
+  });
+  head.appendChild(tr);
+  table.appendChild(head);
+
+  const body = document.createElement('tbody');
+  cats[0].values.forEach((anchor, slot) => {
+    const row = document.createElement('tr');
+    const th = document.createElement('th');
+    th.textContent = anchor;
+    row.appendChild(th);
+    for (let c = 1; c < 5; c++) {
+      const td = document.createElement('td');
+      const sel = document.createElement('select');
+      sel.innerHTML = '<option value="">–</option>' +
+        cats[c].values.map((v, i) => `<option value="${i}">${v}</option>`).join('');
+      const cur = state.answers[slot]?.[c];
+      if (cur !== undefined) sel.value = String(cur);
+      sel.addEventListener('change', () => {
+        if (sel.value === '') { delete state.answers[slot]?.[c]; }
+        else setAnswer(slot, c, Number(sel.value));
+        td.className = '';
+      });
+      if (state.revealed) {
+        sel.disabled = true;
+        sel.value = String(state.puzzle.solution[c][slot]);
+      }
+      td.appendChild(sel);
+      row.appendChild(td);
+    }
+    body.appendChild(row);
+  });
+  table.appendChild(body);
+  const wrap = $('#solution');
+  wrap.innerHTML = '';
+  wrap.appendChild(table);
+}
+
+// -------------------------------------------------------------- Pruefen -----
+
+function check() {
+  const sol = state.puzzle.solution;
+  let filled = 0, wrong = 0;
+  const cells = $('#solution').querySelectorAll('tbody tr');
+  cells.forEach((tr, slot) => {
+    for (let c = 1; c < 5; c++) {
+      const td = tr.children[c];
+      const sel = td.querySelector('select');
+      td.className = '';
+      if (sel.value === '') continue;
+      filled++;
+      if (Number(sel.value) !== sol[c][slot]) { td.className = 'wrong'; wrong++; }
+      else td.className = 'right';
+    }
+  });
+  if (filled === 0) { setStatus('Die Lösungstabelle ist noch leer.', 'warn'); return; }
+  if (wrong === 0 && filled === 20) {
+    const mins = Math.round((Date.now() - state.startedAt) / 60000);
+    setStatus(`Alles richtig. Gelöst in ${mins < 1 ? 'unter einer Minute' : mins + ' Minuten'}.`, 'ok');
+    archiveCurrent('gelöst');
+  } else if (wrong === 0) {
+    setStatus(`${filled} von 20 Feldern stimmen. Weiter geht es.`, 'ok');
+  } else {
+    setStatus(`${wrong} ${wrong === 1 ? 'Feld ist' : 'Felder sind'} falsch, rot markiert.`, 'warn');
+  }
+}
+
+function reveal() {
+  state.revealed = true;
+  renderSolution();
+  setStatus('Lösung eingeblendet.', '');
+  archiveCurrent('aufgelöst');
+}
+
+// -------------------------------------------------------------- Archiv ------
+
+function archiveCurrent(status) {
+  if (state.archived) return;
+  state.archived = true;
+  const { theme, puzzle } = state;
+  const list = loadArchive();
+  list.unshift({
+    id: Date.now(),
+    ts: new Date().toISOString(),
+    themeId: theme.id,
+    themeName: theme.name,
+    level: puzzle.rating.level,
+    hintCount: puzzle.hints.length,
+    seed: puzzle.seed,
+    sig: signature(theme.id, puzzle.solution),
+    status,
+    minutes: Math.max(1, Math.round((Date.now() - state.startedAt) / 60000)),
+    solution: puzzle.solution,
+    hintTexts: orderHints(theme, puzzle.hints).map((o) => o.text),
+  });
+  saveArchive(list.slice(0, 500));
+  renderArchive();
+}
+
+function renderArchive() {
+  const list = loadArchive();
+  $('#archive-count').textContent = list.length === 0 ? 'noch leer'
+    : `${list.length} ${list.length === 1 ? 'Eintrag' : 'Einträge'}`;
+  const tbody = $('#archive-body');
+  tbody.innerHTML = '';
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="muted">Gelöste Rätsel landen hier und werden beim Erzeugen gemieden.</td></tr>';
+    return;
+  }
+  list.slice(0, 40).forEach((e) => {
+    const tr = document.createElement('tr');
+    const d = new Date(e.ts);
+    const dd = String(d.getDate()).padStart(2, '0') + '.' +
+      String(d.getMonth() + 1).padStart(2, '0') + '.' + d.getFullYear();
+    tr.innerHTML = `<td>${dd}</td><td>${e.themeName}</td><td>${e.level}</td>
+      <td class="num">${e.hintCount}</td><td>${e.status}</td><td class="num">${e.minutes} min</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+async function exportArchive() {
+  const json = JSON.stringify(loadArchive(), null, 2);
+  // Im Artifact-Viewer darf die Seite nicht selbst herunterladen, dort geht
+  // die Datei ueber die Download-Faehigkeit an den Betrachter.
+  const dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null;
+  if (dl) {
+    try {
+      await dl.save({ filename: 'logical-archiv.json', data: json });
+      setStatus('Archiv gesichert.', 'ok');
+    } catch (err) {
+      if (err && err.code === 'declined') setStatus('Sichern abgebrochen.', '');
+      else setStatus('Sichern nicht möglich: ' + ((err && err.message) || 'unbekannter Grund'), 'warn');
+    }
+    return;
+  }
+  const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'logical-archiv.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  setStatus('Archiv gesichert.', 'ok');
+}
+
+function importArchive(file) {
+  const fr = new FileReader();
+  fr.onload = () => {
+    try {
+      const incoming = JSON.parse(fr.result);
+      if (!Array.isArray(incoming)) throw new Error('Format');
+      const have = loadArchive();
+      const seen = new Set(have.map((e) => e.sig));
+      const merged = have.concat(incoming.filter((e) => e && e.sig && !seen.has(e.sig)));
+      merged.sort((a, b) => (a.ts < b.ts ? 1 : -1));
+      saveArchive(merged.slice(0, 500));
+      renderArchive();
+      setStatus(`Archiv zusammengeführt, jetzt ${merged.length} Einträge.`, 'ok');
+    } catch {
+      setStatus('Die Datei ließ sich nicht lesen. Erwartet wird ein Export dieser Seite.', 'warn');
+    }
+  };
+  fr.readAsText(file);
+}
+
+// ---------------------------------------------------------------- Start -----
+
+function init() {
+  const sel = $('#theme');
+  THEMES.forEach((t) => {
+    const o = document.createElement('option');
+    o.value = t.id; o.textContent = t.name;
+    sel.appendChild(o);
+  });
+  $('#generate').addEventListener('click', generate);
+  $('#check').addEventListener('click', check);
+  $('#reveal').addEventListener('click', reveal);
+  $('#clear').addEventListener('click', () => {
+    state.marks = new Map(); state.answers = {}; state.revealed = false;
+    renderGrid(); renderSolution(); setStatus('');
+  });
+  $('#export').addEventListener('click', exportArchive);
+  $('#import').addEventListener('change', (e) => {
+    if (e.target.files[0]) importArchive(e.target.files[0]);
+    e.target.value = '';
+  });
+  $('#wipe').addEventListener('click', () => {
+    if (confirm('Das gesamte Archiv löschen? Das lässt sich nicht rückgängig machen.')) {
+      saveArchive([]); renderArchive();
+    }
+  });
+  renderArchive();
+}
+
+document.addEventListener('DOMContentLoaded', init);</script>
+
+</body>
+</html>

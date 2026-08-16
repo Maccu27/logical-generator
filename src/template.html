@@ -1,0 +1,85 @@
+<title>Logical-Werkstatt</title>
+<style>/*__CSS__*/</style>
+
+<div class="wrap">
+  <header>
+    <h1>Logical-Werkstatt</h1>
+    <p class="tagline">Erzeugt Logikrätsel mit fünf Kategorien zu je fünf Werten. Jedes Rätsel hat genau eine Lösung und lässt sich ohne Raten knacken, allein durch Schlussfolgern im Raster.</p>
+  </header>
+
+  <div class="controls">
+    <div class="field">
+      <label class="cap" for="theme">Thema</label>
+      <select id="theme"><option value="egal">Abwechselnd</option></select>
+    </div>
+    <div class="field">
+      <label class="cap" for="level">Schwierigkeit</label>
+      <select id="level">
+        <option value="mittel">Mittel</option>
+        <option value="leicht">Leicht</option>
+        <option value="knifflig">Knifflig</option>
+        <option value="egal">Egal</option>
+      </select>
+    </div>
+    <button id="generate" class="primary" type="button">Neues Logical</button>
+    <label class="toggle"><input type="checkbox" id="autocross" checked> Kreuze automatisch setzen</label>
+  </div>
+
+  <p class="status" id="status" hidden></p>
+
+  <p class="empty" id="empty">Noch kein Rätsel. Oben auf <strong>Neues Logical</strong> klicken.</p>
+
+  <section id="puzzle" hidden>
+    <div class="card">
+      <h2 class="theme-name" id="theme-name"></h2>
+      <p class="intro" id="intro"></p>
+      <p class="meta" id="meta"></p>
+    </div>
+
+    <div class="layout">
+      <div class="card">
+        <h3 class="card-label">Hinweise</h3>
+        <ol id="hints"></ol>
+      </div>
+
+      <div class="card">
+        <h3 class="card-label">Kreuzraster</h3>
+        <div class="grid-wrap"><div id="grid"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-label">Lösung</h3>
+      <div class="grid-wrap"><div id="solution"></div></div>
+      <div class="row-actions">
+        <button id="check" type="button">Prüfen</button>
+        <button id="clear" type="button">Eingaben löschen</button>
+        <button id="reveal" type="button">Lösung zeigen</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="archive-head">
+      <h3 class="card-label">Archiv</h3>
+      <span class="cap" id="archive-count"></span>
+    </div>
+    <div class="grid-wrap">
+      <table class="archive">
+        <thead><tr><th>Datum</th><th>Thema</th><th>Stufe</th><th class="num">Hinweise</th><th>Stand</th><th class="num">Dauer</th></tr></thead>
+        <tbody id="archive-body"></tbody>
+      </table>
+    </div>
+    <div class="row-actions">
+      <button id="export" type="button">Als Datei sichern</button>
+      <label class="file-label">Archiv einlesen<input type="file" id="import" accept="application/json"></label>
+      <button id="wipe" type="button">Archiv leeren</button>
+    </div>
+  </section>
+
+  <footer>
+    Das Archiv liegt in diesem Browser. Gesicherte Rätsel werden beim Erzeugen gemieden, und zuletzt gespielte Themen kommen nicht sofort wieder.
+  </footer>
+</div>
+
+<script>/*__JS__*/</script>
